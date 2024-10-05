@@ -27,27 +27,24 @@ class InAppWebViewNew extends GetView<newBrowserController> {
                     margin: EdgeInsets.only(right: 8.0),
                     child: Row(
                       children: [
-                        InkWell(
-                          onTap: () {
-                            controller.selectedIndex.value = index;
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: index == controller.selectedIndex.value
-                                  ? Colors.green
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text('Browser ${index + 1}'),
-                          ),
-                        ),
                         IconButton(
                           icon: Icon(Icons.close, size: 16),
                           onPressed: () {
                             controller.removeBrowser(index);
                           },
+                        ),
+                        InkWell(
+                          onTap: () {
+                            controller.selectedIndex.value = index;
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: index == controller.selectedIndex.value ? Colors.green : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text('Browser ${index + 1}'),
+                          ),
                         ),
                       ],
                     ),
@@ -61,17 +58,11 @@ class InAppWebViewNew extends GetView<newBrowserController> {
                   return Center(child: Text('No browsers added.'));
                 }
                 return InAppWebView(
-                  key: controller
-                      .browserInstances[controller.selectedIndex.value]
-                      .webViewKey,
-                  initialUrlRequest: URLRequest(
-                      url: WebUri.uri(Uri.parse('https://web.whatsapp.com/'))),
-                  initialSettings: controller
-                      .browserInstances[controller.selectedIndex.value]
-                      .settings,
-                  onWebViewCreated: (cntlr) {
-                    controller.browserInstances[controller.selectedIndex.value]
-                        .webViewController = cntlr;
+                  key: controller.browserInstances[controller.selectedIndex.value].webViewKey,
+                  initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse('https://web.whatsapp.com/'),),),
+                  initialSettings: controller.browserInstances[controller.selectedIndex.value].settings,
+                  onWebViewCreated: (controller) {
+                    // controller.browserInstances[controller.selectedIndex.value].webViewController = controller;
                   },
                   onLoadStart: (controller, url) async {},
                   onPermissionRequest: (controller, request) async {
@@ -80,18 +71,9 @@ class InAppWebViewNew extends GetView<newBrowserController> {
                       action: PermissionResponseAction.GRANT,
                     );
                   },
-                  shouldOverrideUrlLoading:
-                      (controller, navigationAction) async {
+                  shouldOverrideUrlLoading: (controller, navigationAction) async {
                     var uri = navigationAction.request.url!;
-                    if (![
-                      "http",
-                      "https",
-                      "file",
-                      "chrome",
-                      "data",
-                      "javascript",
-                      "about"
-                    ].contains(uri.scheme)) {
+                    if (!["http", "https", "file", "chrome", "data", "javascript", "about"].contains(uri.scheme)) {
                       if (await canLaunchUrl(uri)) {
                         await launchUrl(uri);
                         return NavigationActionPolicy.CANCEL;
