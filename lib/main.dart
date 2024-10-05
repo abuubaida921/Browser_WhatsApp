@@ -2,7 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-import 'in_app_web_view.dart';
+import 'app_pages.dart';
+import 'binding.dart';
+import 'package:get/get.dart';
+
+import 'new_browser.dart';
 
 final localhostServer = InAppLocalhostServer(documentRoot: 'assets');
 WebViewEnvironment? webViewEnvironment;
@@ -17,7 +21,7 @@ Future main() async {
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
     final availableVersion = await WebViewEnvironment.getAvailableVersion();
     assert(availableVersion != null,
-    'Failed to find an installed WebView2 runtime or non-stable Microsoft Edge installation.');
+        'Failed to find an installed WebView2 runtime or non-stable Microsoft Edge installation.');
 
     webViewEnvironment = await WebViewEnvironment.create(
         settings: WebViewEnvironmentSettings(userDataFolder: 'custom_path'));
@@ -48,11 +52,11 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/',
-        routes: {
-          '/': (context) => InAppWebViewExampleScreen(),
-        });
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialBinding: Binding(),
+      initialRoute: AppPages.INITIAL,
+      getPages: AppPages.routes,
+    );
   }
 }
