@@ -1,50 +1,58 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:get/get.dart';
 
-import 'app/global_binding.dart';
-import 'app/routes/app_pages.dart';
+import 'in_app_web_view.dart';
 
-late SharedPreferences prefs;
-
+final localhostServer = InAppLocalhostServer(documentRoot: 'assets');
 WebViewEnvironment? webViewEnvironment;
 
-void main() async {
+Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // await Permission.camera.request();
+  // await Permission.microphone.request();
+  // await Permission.storage.request();
+
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
     final availableVersion = await WebViewEnvironment.getAvailableVersion();
     assert(availableVersion != null,
-        'Failed to find an installed WebView2 runtime or non-stable Microsoft Edge installation.');
+    'Failed to find an installed WebView2 runtime or non-stable Microsoft Edge installation.');
 
     webViewEnvironment = await WebViewEnvironment.create(
         settings: WebViewEnvironmentSettings(userDataFolder: 'custom_path'));
   }
-  prefs = await SharedPreferences.getInstance();
-  runApp(const MyApp());
+
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await InAppWebViewController.setWebContentsDebuggingEnabled(kDebugMode);
+  }
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
-
   @override
-  State<MyApp> createState() => _MyAppState();
+  _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'WhatsApp',
-      initialBinding: GlobalBinding(),
-      theme: ThemeData(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        primarySwatch: Colors.blue,
-      ),
-      initialRoute: AppPages.INITIAL,
-      getPages: AppPages.routes,
-    );
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: '/',
+        routes: {
+          '/': (context) => InAppWebViewExampleScreen(),
+        });
   }
 }
